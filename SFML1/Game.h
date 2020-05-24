@@ -22,6 +22,12 @@ private:
 	sf::Vector2f lastPosition;
 	bool moving;
 	bool smash;
+
+	// Tile variables
+	sf::Sprite tileSprite;
+	sf::Texture tileTexture;
+	std::vector<sf::FloatRect> tileRects;
+	std::vector<std::vector<int>> tileMapArray;
 public:
 	Game() = delete;
 	Game(int w, int h,const char* title);
@@ -34,5 +40,7 @@ public:
 	void Update();
 	void Render();
 	void GenerateColors(int seed, int n);
+	void GenerateTileMap(int seed, int rows, int columns);
+	void DrawTileMap();
 };
 
