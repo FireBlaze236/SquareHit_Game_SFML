@@ -1,6 +1,7 @@
 #pragma once
 #include "SFML/Graphics.hpp"
 #include "Player.h"
+
 class Game
 {
 
@@ -26,8 +27,13 @@ private:
 	// Tile variables
 	sf::Sprite tileSprite;
 	sf::Texture tileTexture;
-	std::vector<sf::FloatRect> tileRects;
-	std::vector<std::vector<int>> tileMapArray;
+	static const int tileMapRows = 8, tileMapColumns = 12;
+	sf::FloatRect tileRects[tileMapRows][tileMapColumns];
+	int tileMapArray[tileMapRows][tileMapColumns];
+	//UI variables
+
+	int score = 0;
+	int lives = 10;
 public:
 	Game() = delete;
 	Game(int w, int h,const char* title);

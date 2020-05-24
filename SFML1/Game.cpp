@@ -1,5 +1,5 @@
 #include "Game.h"
-
+#include <iostream>
 
 Game::Game(int w, int h, const char* title) 
 	: GameRunning(true), gameWindow(new sf::RenderWindow(sf::VideoMode(w, h), title)), player(new Player())
@@ -19,9 +19,10 @@ Game::Game(int w, int h, const char* title)
 	interval = 1;
 
 	//Generate Tile Map
-	GenerateTileMap(12,8, 12);
+	GenerateTileMap(12,tileMapRows, tileMapColumns);
 	tileTexture.loadFromFile("assets\\tiles.png");
 	tileSprite.setTexture(tileTexture);
+	
 }
 
 
@@ -45,11 +46,9 @@ void Game::HandleEvents()
 			gameWindow->close();
 			break;
 		}
-				
 		}
 	}
 
-	
 	
 	//Player smashes the tiles when Space is pressed
 	if (!smash && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space))
@@ -75,8 +74,36 @@ void Game::HandleEvents()
 		moving = true;
 	}
 
-
-	
+	if (smash && !moving)
+	{
+		bool collide = false;
+		sf::FloatRect playerRect = player->GetSprite().getGlobalBounds();
+		for (int i = 0;i < tileMapRows && !collide; i++)
+		{
+			for (int j = 0; j < tileMapColumns && !collide; j++)
+			{
+				if (playerRect.intersects(tileRects[i][j]))
+				{
+					tileRects[i][j] = sf::FloatRect();
+					if (tileMapArray[i][j] == currentColor)
+					{
+						score++;
+						std::cout << "Score : " << score << " Lives:" << lives << std::endl;
+					}
+					else
+					{
+						lives--;
+						std::cout << "Score : " << score << " Lives:" << lives << std::endl;
+					}
+					tileMapArray[i][j] = -1;
+					smash = false;
+					player->SetPosition(lastPosition);
+					moving = true;
+					collide = true;
+				}
+			}
+		}
+	}
 }
 
 void Game::Update()
@@ -86,19 +113,23 @@ void Game::Update()
 	if (moving && t > interval)
 	{
 		intervalTimer.restart();
-		srand(time(NULL));
-		currentColor = rand() % colors.size();
+		currentColor++;
+		if (currentColor >= colors.size()) currentColor = 0;
 		player->SetColor(colors[currentColor]);
 	}
+	
 	if(moving && !smash)
 	{
 		player->Move(sf::Vector2f(playerMoveSpeed, 0.0f));
 	}
 
+	//Detect collision with player and tile
 	if (smash && !moving)
 	{
 		player->Move(sf::Vector2f(0.0f, playerSmashSpeed));
 	}
+
+	
 	
 }
 
@@ -142,36 +173,41 @@ void Game::GenerateTileMap(int seed, int rows, int columns)
 	int n = colors.size(); // match colors
 	for (int i = 0;i < rows;i++)
 	{
-		std::vector<int> temp;
 		for (int j = 0;j < columns;j++)
 		{
-			temp.push_back(rand() % n);
+			tileMapArray[i][j] = rand() % n;
 		}
-		tileMapArray.push_back(temp);
 	}
-
+	
 }
 
 void Game::DrawTileMap()
 {
+	
 	float initialx = 32.0f;
 	float initialy = 200.0f;
 	sf::Vector2f drawPos = sf::Vector2f(initialx, initialy);
 	float spacing = 5.0f;
-	for (int i = 0;i < tileMapArray.size(); i++)
+	for (int i = 0;i < tileMapRows; i++)
 	{
-		for (int j = 0; j < tileMapArray[i].size();j++)
+		for (int j = 0; j < tileMapColumns;j++)
 		{
 			int idx = tileMapArray[i][j];
 
 			//Draw single tile
-			tileSprite.setColor(colors[idx]);
+			
 			tileSprite.setPosition(drawPos);
-			gameWindow->draw(tileSprite);
+			if (idx >= 0)
+			{
+				tileSprite.setColor(colors[idx]);
+				gameWindow->draw(tileSprite);
+			}
 
-			//store rect for collision detect
-			tileRects.push_back(tileSprite.getGlobalBounds());
-
+			//store rect + color for collision detect
+			if (idx >= 0)
+			{
+				tileRects[i][j] = tileSprite.getGlobalBounds();
+			}
 			//advance column
 			drawPos.x += 32 + spacing;
 		}
@@ -181,6 +217,8 @@ void Game::DrawTileMap()
 		//advance row
 		drawPos.y += 32 + spacing;
 	}
+	
 }
+
 
 
