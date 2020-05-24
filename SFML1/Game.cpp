@@ -20,7 +20,7 @@ Game::Game(int w, int h, const char* title)
 
 	//Generate Tile Map
 	GenerateTileMap(12,8, 12);
-	tileTexture.loadFromFile("assets\\tile.png");
+	tileTexture.loadFromFile("assets\\tiles.png");
 	tileSprite.setTexture(tileTexture);
 }
 
