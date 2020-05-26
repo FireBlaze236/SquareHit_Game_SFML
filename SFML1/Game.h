@@ -38,7 +38,7 @@ private:
 	//UI variables
 
 	int score = 0;
-	int lives = 10;
+	int lives = 25;
 	sf::Font font;
 	sf::Text scoreText;
 	sf::Text livesText;

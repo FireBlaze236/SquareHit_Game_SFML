@@ -231,7 +231,7 @@ void Game::DrawTileMap()
 
 void Game::InitUI()
 {
-	font.loadFromFile("assets\\arial.ttf");
+	font.loadFromFile("assets\\font.ttf");
 	scoreText.setFont(font);
 	livesText.setFont(font);
 	timerText.setFont(font);
