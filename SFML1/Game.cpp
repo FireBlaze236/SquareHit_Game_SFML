@@ -1,11 +1,12 @@
 #include "Game.h"
 #include <iostream>
-
-Game::Game(int w, int h, const char* title) 
-	: GameRunning(true), gameWindow(new sf::RenderWindow(sf::VideoMode(w, h), title)), player(new Player())
+#include <string>
+#include <sstream>
+Game::Game(int w, int h, const char* title, int ms, int cn, int cs, int d) 
+	: MapSeed(ms),ColorsNum(cn), ColorSeed(cs), diff(d), GameRunning(true), gameWindow(new sf::RenderWindow(sf::VideoMode(w, h), title)), player(new Player())
 {
 	//Generate Random colors
-	GenerateColors(73, 3);
+	GenerateColors(ColorSeed, std::min(10, ColorsNum));
 	currentColor = 0;
 	player->SetColor(colors[0]);
 	player->SetPosition(sf::Vector2f(0.0f, 12.0f));
@@ -17,12 +18,14 @@ Game::Game(int w, int h, const char* title)
 	smash = false;
 	lastPosition = sf::Vector2f(0.0f, 12.0f);
 	interval = 1;
-
+	if(diff != 0) playerMoveSpeed *= diff;
 	//Generate Tile Map
-	GenerateTileMap(12,tileMapRows, tileMapColumns);
+	GenerateTileMap(MapSeed,tileMapRows, tileMapColumns);
 	tileTexture.loadFromFile("assets\\tiles.png");
 	tileSprite.setTexture(tileTexture);
 	
+	//Init UI
+	InitUI();
 }
 
 
@@ -88,12 +91,12 @@ void Game::HandleEvents()
 					if (tileMapArray[i][j] == currentColor)
 					{
 						score++;
-						std::cout << "Score : " << score << " Lives:" << lives << std::endl;
+						//std::cout << "Score : " << score << " Lives:" << lives << std::endl;
 					}
 					else
 					{
 						lives--;
-						std::cout << "Score : " << score << " Lives:" << lives << std::endl;
+						//std::cout << "Score : " << score << " Lives:" << lives << std::endl;
 					}
 					tileMapArray[i][j] = -1;
 					smash = false;
@@ -140,6 +143,11 @@ void Game::Render()
 	//Clear for render
 	gameWindow->clear();
 	//Area for rendering everything
+	//UI
+	UpdateUI();
+	gameWindow->draw(scoreText);
+	gameWindow->draw(livesText);
+	//UI
 	gameWindow->draw(player->GetSprite());
 	DrawTileMap();
 	//Display rendered output
@@ -220,5 +228,38 @@ void Game::DrawTileMap()
 	
 }
 
+
+void Game::InitUI()
+{
+	font.loadFromFile("assets\\arial.ttf");
+	scoreText.setFont(font);
+	livesText.setFont(font);
+	timerText.setFont(font);
+
+	scoreText.setCharacterSize(24);
+	livesText.setCharacterSize(24);
+	timerText.setCharacterSize(24);
+
+	scoreText.setPosition(sf::Vector2f(0.0f, 0.0f));
+	livesText.setPosition(sf::Vector2f(150.0f, 0.0f));
+	//
+
+}
+
+void Game::UpdateUI()
+{
+	std::stringstream ss;
+	ss << "Score:" << score;
+	std::string scoreString;
+	ss >> scoreString;
+	scoreText.setString(scoreString);
+
+	ss.clear();
+
+	ss << "Lives:" << lives;
+	std::string livesString;
+	ss >> livesString;
+	livesText.setString(livesString);
+}
 
 

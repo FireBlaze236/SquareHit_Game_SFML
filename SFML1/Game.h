@@ -4,11 +4,16 @@
 
 class Game
 {
-
+public:
+	int MapSeed = 12;
+	int ColorsNum = 3;
+	int ColorSeed = 73;
+	int diff = 1;
+	sf::RenderWindow* gameWindow;
 private:
 	//main variables
 	bool GameRunning;
-	sf::RenderWindow* gameWindow;
+	//sf::RenderWindow* gameWindow;
 	Player* player;
 	//Colors
 	std::vector<sf::Color> colors;
@@ -34,9 +39,14 @@ private:
 
 	int score = 0;
 	int lives = 10;
+	sf::Font font;
+	sf::Text scoreText;
+	sf::Text livesText;
+	sf::Text timerText; // Timer to be implemented
+	//
 public:
 	Game() = delete;
-	Game(int w, int h,const char* title);
+	Game(int w, int h, const char* title, int ms, int cn, int cs, int d);
 	~Game();
 
 	bool IsRunning() const { return gameWindow->isOpen() && GameRunning; }
@@ -48,5 +58,8 @@ public:
 	void GenerateColors(int seed, int n);
 	void GenerateTileMap(int seed, int rows, int columns);
 	void DrawTileMap();
+	//Ui function
+	void InitUI();
+	void UpdateUI();
 };
 
