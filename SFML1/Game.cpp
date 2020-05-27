@@ -18,7 +18,7 @@ Game::Game(int w, int h, const char* title, int ms, int cn, int cs, int d)
 	smash = false;
 	lastPosition = sf::Vector2f(0.0f, 12.0f);
 	interval = 1;
-	if(diff != 0) playerMoveSpeed *= diff;
+	if (diff >= 2) playerMoveSpeed *= std::min(5, diff) / 2;
 	//Generate Tile Map
 	GenerateTileMap(MapSeed,tileMapRows, tileMapColumns);
 	tileTexture.loadFromFile("assets\\tiles.png");
@@ -136,10 +136,14 @@ void Game::Update()
 	//Detect collision with player and tile
 	if (smash && !moving)
 	{
+		intervalTimer.restart();
 		player->Move(sf::Vector2f(0.0f, playerSmashSpeed));
 	}
 
-	
+	if (lives == 0)
+	{
+		GameRunning = false;
+	}
 	
 }
 
