@@ -1,5 +1,6 @@
 #pragma once
 #include "SFML/Graphics.hpp"
+#include "SFML/Audio.hpp"
 #include "Player.h"
 
 class Game
@@ -44,6 +45,10 @@ private:
 	sf::Text livesText;
 	sf::Text timerText; // Timer to be implemented
 	//
+
+	//Audio
+	sf::SoundBuffer musicBuff;
+	sf::Sound music;
 public:
 	Game() = delete;
 	Game(int w, int h, const char* title, int ms, int cn, int cs, int d);

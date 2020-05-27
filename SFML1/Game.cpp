@@ -26,12 +26,19 @@ Game::Game(int w, int h, const char* title, int ms, int cn, int cs, int d)
 	
 	//Init UI
 	InitUI();
+
+	//Init Audio
+	musicBuff.loadFromFile("assets\\music.wav");
+	music.setBuffer(musicBuff);
+	music.setLoop(true);
+	music.play();
 }
 
 
 
 Game::~Game()
 {
+	music.stop();
 	delete gameWindow;
 	delete player;
 }
