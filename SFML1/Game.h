@@ -44,7 +44,7 @@ private:
 	//UI variables
 
 	int score = 0;
-	int lives = 1;
+	int lives = 25;
 	sf::Font font;
 	sf::Text scoreText;
 	sf::Text livesText;
@@ -57,6 +57,8 @@ private:
 	//Audio
 	sf::SoundBuffer musicBuff;
 	sf::Sound music;
+	sf::SoundBuffer colSoundBuf, spaceSoundBuf;
+	sf::Sound spaceSound, colSound;
 public:
 	Game() = delete;
 	Game(int w, int h, const char* title, int ms, int cn, int cs, int d);
