@@ -29,6 +29,7 @@ private:
 	sf::Vector2f lastPosition;
 	bool moving;
 	bool smash;
+	bool outOfBounds;
 
 	// Tile variables
 	sf::Sprite tileSprite;

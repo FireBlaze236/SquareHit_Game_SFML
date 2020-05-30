@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+
 Game::Game(int w, int h, const char* title, int ms, int cn, int cs, int d) 
 	: MapSeed(ms),ColorsNum(cn), ColorSeed(cs), diff(d), GameRunning(true), gameWindow(new sf::RenderWindow(sf::VideoMode(w, h), title)), player(new Player())
 {
@@ -16,6 +17,7 @@ Game::Game(int w, int h, const char* title, int ms, int cn, int cs, int d)
 	//Set player status
 	moving = true;
 	smash = false;
+	outOfBounds = false;
 	lastPosition = sf::Vector2f(0.0f, 12.0f);
 	interval = 1;
 	if (diff >= 2) playerMoveSpeed *= std::min(5, diff) / 2;
@@ -60,7 +62,7 @@ void Game::HandleEvents()
 	}
 
 	
-	//Player smashes the tiles when Space is pressed
+	// Player smashes the tiles when Space is pressed
 	if (!smash && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space))
 	{
 		moving = false;
@@ -68,15 +70,25 @@ void Game::HandleEvents()
 		lastPosition = player->GetSprite().getPosition();
 	}
 
-	// Player Check bound
-	//Get player position
+	// Switch direction when player hits edge of screen
 	sf::Vector2f position = player->GetSprite().getPosition();
 	if (position.x > 480.0f || position.x < 0.0f)
 	{
-		playerMoveSpeed *= -1;
+		if (!outOfBounds)
+		{
+			playerMoveSpeed *= -1;
+			outOfBounds = true;
+		}
+	}
+	if (outOfBounds)
+	{
+		if (position.x <= 480.0f && position.y >= 0.0f)
+		{
+			outOfBounds = false;
+		}
 	}
 
-	//Reset position if out of bound
+	// Handle end of smash action when player falls through screen
 	if (smash && position.y > 480.0f)
 	{
 		smash = false;
@@ -84,11 +96,12 @@ void Game::HandleEvents()
 		moving = true;
 	}
 
+	// handle end of smash when player hits a block
 	if (smash && !moving)
 	{
 		bool collide = false;
 		sf::FloatRect playerRect = player->GetSprite().getGlobalBounds();
-		for (int i = 0;i < tileMapRows && !collide; i++)
+		for (int i = 0; i < tileMapRows && !collide; i++)
 		{
 			for (int j = 0; j < tileMapColumns && !collide; j++)
 			{
