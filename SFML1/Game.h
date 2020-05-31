@@ -11,9 +11,13 @@ public:
 	int ColorSeed = 73;
 	int diff = 1;
 	sf::RenderWindow* gameWindow;
+	bool GamePaused;
 private:
 	//main variables
 	bool GameRunning;
+	
+	bool GameWin;
+	bool GameOver;
 	//sf::RenderWindow* gameWindow;
 	Player* player;
 	//Colors
@@ -35,6 +39,7 @@ private:
 	sf::Sprite tileSprite;
 	sf::Texture tileTexture;
 	static const int tileMapRows = 8, tileMapColumns = 12;
+	int tileCount = tileMapRows * tileMapColumns;
 	sf::FloatRect tileRects[tileMapRows][tileMapColumns];
 	int tileMapArray[tileMapRows][tileMapColumns];
 	//UI variables
@@ -45,11 +50,16 @@ private:
 	sf::Text scoreText;
 	sf::Text livesText;
 	sf::Text timerText; // Timer to be implemented
+	sf::Text pausedText;
+	sf::Text gameWinText;
+	sf::Text gameOverText;
 	//
 
 	//Audio
 	sf::SoundBuffer musicBuff;
 	sf::Sound music;
+	sf::SoundBuffer colSoundBuf, spaceSoundBuf;
+	sf::Sound spaceSound, colSound;
 public:
 	Game() = delete;
 	Game(int w, int h, const char* title, int ms, int cn, int cs, int d);
@@ -67,5 +77,9 @@ public:
 	//Ui function
 	void InitUI();
 	void UpdateUI();
+
+	// Util
+	void PauseGame();
+	void Close();
 };
 

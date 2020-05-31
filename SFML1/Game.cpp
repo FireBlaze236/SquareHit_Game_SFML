@@ -6,6 +6,7 @@
 Game::Game(int w, int h, const char* title, int ms, int cn, int cs, int d) 
 	: MapSeed(ms),ColorsNum(cn), ColorSeed(cs), diff(d), GameRunning(true), gameWindow(new sf::RenderWindow(sf::VideoMode(w, h), title)), player(new Player())
 {
+	GamePaused = false;
 	//Generate Random colors
 	GenerateColors(ColorSeed, std::min(10, ColorsNum));
 	currentColor = 0;
@@ -32,8 +33,14 @@ Game::Game(int w, int h, const char* title, int ms, int cn, int cs, int d)
 	//Init Audio
 	musicBuff.loadFromFile("assets\\music.wav");
 	music.setBuffer(musicBuff);
+	//music.setVolume(30.0f);
 	music.setLoop(true);
 	music.play();
+
+	colSoundBuf.loadFromFile("assets\\col.wav");
+	colSound.setBuffer(colSoundBuf);
+	spaceSoundBuf.loadFromFile("assets\\space.wav");
+	spaceSound.setBuffer(spaceSoundBuf);
 }
 
 
@@ -58,6 +65,18 @@ void Game::HandleEvents()
 			gameWindow->close();
 			break;
 		}
+		case sf::Event::KeyReleased:
+		{
+			if (e.key.code == sf::Keyboard::Escape)
+			{
+				GamePaused = !GamePaused;
+			}
+		}
+		}
+
+		if ((GameWin || GameOver) && e.type == sf::Event::KeyReleased && e.key.code == sf::Keyboard::Escape)
+		{
+			Close();
 		}
 	}
 
@@ -68,6 +87,7 @@ void Game::HandleEvents()
 		moving = false;
 		smash = true;
 		lastPosition = player->GetSprite().getPosition();
+		spaceSound.play();
 	}
 
 	// Switch direction when player hits edge of screen
@@ -119,10 +139,12 @@ void Game::HandleEvents()
 						//std::cout << "Score : " << score << " Lives:" << lives << std::endl;
 					}
 					tileMapArray[i][j] = -1;
+					tileCount--;
 					smash = false;
 					player->SetPosition(lastPosition);
 					moving = true;
 					collide = true;
+					colSound.play();
 				}
 			}
 		}
@@ -155,9 +177,14 @@ void Game::Update()
 
 	if (lives == 0)
 	{
-		GameRunning = false;
+		PauseGame();
+		GameOver = true;
 	}
-	
+	else if (tileCount == 0)
+	{
+		PauseGame();
+		GameWin = true;
+	}
 }
 
 
@@ -171,6 +198,9 @@ void Game::Render()
 	UpdateUI();
 	gameWindow->draw(scoreText);
 	gameWindow->draw(livesText);
+	if (GamePaused && !GameWin && !GameOver) gameWindow->draw(pausedText);
+	else if (GameWin) gameWindow->draw(gameWinText);
+	else if (GameOver) gameWindow->draw(gameOverText);
 	//UI
 	gameWindow->draw(player->GetSprite());
 	DrawTileMap();
@@ -267,6 +297,26 @@ void Game::InitUI()
 	scoreText.setPosition(sf::Vector2f(0.0f, 0.0f));
 	livesText.setPosition(sf::Vector2f(150.0f, 0.0f));
 	//
+	//Find a way to center it according to window
+	pausedText.setFont(font);
+	pausedText.setCharacterSize(48);
+	pausedText.setString("Paused");
+	pausedText.setPosition(140,100);
+
+	// Game win
+
+	gameWinText.setFont(font);
+	gameWinText.setCharacterSize(48);
+	gameWinText.setString("Congratulations !");
+	gameWinText.setPosition(20, 100);
+	
+	// Game over
+	gameOverText.setFont(font);
+	gameOverText.setFillColor(sf::Color::Red);
+	gameOverText.setCharacterSize(48);
+	gameOverText.setString("Game Over!");
+	gameOverText.setPosition(140, 100);
+
 
 }
 
@@ -284,6 +334,16 @@ void Game::UpdateUI()
 	std::string livesString;
 	ss >> livesString;
 	livesText.setString(livesString);
+
 }
 
+void Game::PauseGame()
+{
+	GamePaused = true;
+}
+
+void Game::Close()
+{
+	GameRunning = false;
+}
 
