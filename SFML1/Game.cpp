@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <functional>
 
 Game::Game(int w, int h, const char* title, int ms, int cn, int cs, int d) 
 	: MapSeed(ms),ColorsNum(cn), ColorSeed(cs), diff(d), GameRunning(true), gameWindow(new sf::RenderWindow(sf::VideoMode(w, h), title)), player(new Player())
@@ -125,21 +126,39 @@ void Game::HandleEvents()
 		{
 			for (int j = 0; j < tileMapColumns && !collide; j++)
 			{
+				// NOTE: this section probably needs cleaning up
+				auto destroyTile = [&](int x, int y)
+				{
+					tileRects[x][y] = sf::FloatRect();
+					tileMapArray[x][y] = -1;
+					tileCount--;
+				};
+
 				if (playerRect.intersects(tileRects[i][j]))
 				{
-					tileRects[i][j] = sf::FloatRect();
 					if (tileMapArray[i][j] == currentColor)
 					{
-						score++;
-						//std::cout << "Score : " << score << " Lives:" << lives << std::endl;
+						// NOTE: I'm not sure whether using lambdas in this manner is good or not -sp
+						std::function<void(int, int)> floodFill = [&](int x, int y)
+						{
+							if (x < tileMapRows && y < tileMapColumns && x >= 0 && y >= 0) {
+								if (tileMapArray[x][y] == currentColor) {
+									destroyTile(x, y);
+									score++;
+									floodFill(x + 1, y);
+									floodFill(x, y - 1);
+									floodFill(x, y + 1);
+								}
+							}
+						};
+						floodFill(i, j);
 					}
 					else
 					{
 						lives--;
-						//std::cout << "Score : " << score << " Lives:" << lives << std::endl;
+						destroyTile(i, j);
 					}
-					tileMapArray[i][j] = -1;
-					tileCount--;
+										
 					smash = false;
 					player->SetPosition(lastPosition);
 					moving = true;
