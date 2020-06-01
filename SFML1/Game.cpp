@@ -103,7 +103,7 @@ void Game::HandleEvents()
 	}
 	if (outOfBounds)
 	{
-		if (position.x <= 480.0f && position.y >= 0.0f)
+		if (position.x <= 485.0f && position.y >= -5.0f)
 		{
 			outOfBounds = false;
 		}
