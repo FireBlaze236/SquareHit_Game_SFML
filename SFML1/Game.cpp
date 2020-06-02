@@ -146,6 +146,7 @@ void Game::HandleEvents()
 									destroyTile(x, y);
 									score++;
 									floodFill(x + 1, y);
+									floodFill(x - 1, y);
 									floodFill(x, y - 1);
 									floodFill(x, y + 1);
 								}

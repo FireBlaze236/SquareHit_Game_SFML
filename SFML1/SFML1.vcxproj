@@ -149,7 +149,6 @@
   <ItemGroup>
     <ClInclude Include="Game.h" />
     <ClInclude Include="Player.h" />
-    <ClInclude Include="toml.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="assets\player.png" />
