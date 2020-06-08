@@ -2,9 +2,12 @@
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <functional>
+
 Game::Game(int w, int h, const char* title, int ms, int cn, int cs, int d) 
 	: MapSeed(ms),ColorsNum(cn), ColorSeed(cs), diff(d), GameRunning(true), gameWindow(new sf::RenderWindow(sf::VideoMode(w, h), title)), player(new Player())
 {
+	GamePaused = false;
 	//Generate Random colors
 	GenerateColors(ColorSeed, std::min(10, ColorsNum));
 	currentColor = 0;
@@ -16,6 +19,7 @@ Game::Game(int w, int h, const char* title, int ms, int cn, int cs, int d)
 	//Set player status
 	moving = true;
 	smash = false;
+	outOfBounds = false;
 	lastPosition = sf::Vector2f(0.0f, 12.0f);
 	interval = 1;
 	if (diff >= 2) playerMoveSpeed *= std::min(5, diff) / 2;
@@ -30,8 +34,14 @@ Game::Game(int w, int h, const char* title, int ms, int cn, int cs, int d)
 	//Init Audio
 	musicBuff.loadFromFile("assets\\music.wav");
 	music.setBuffer(musicBuff);
+	//music.setVolume(30.0f);
 	music.setLoop(true);
 	music.play();
+
+	colSoundBuf.loadFromFile("assets\\col.wav");
+	colSound.setBuffer(colSoundBuf);
+	spaceSoundBuf.loadFromFile("assets\\space.wav");
+	spaceSound.setBuffer(spaceSoundBuf);
 }
 
 
@@ -56,27 +66,50 @@ void Game::HandleEvents()
 			gameWindow->close();
 			break;
 		}
+		case sf::Event::KeyReleased:
+		{
+			if (e.key.code == sf::Keyboard::Escape)
+			{
+				GamePaused = !GamePaused;
+			}
+		}
+		}
+
+		if ((GameWin || GameOver) && e.type == sf::Event::KeyReleased && e.key.code == sf::Keyboard::Escape)
+		{
+			Close();
 		}
 	}
 
 	
-	//Player smashes the tiles when Space is pressed
+	// Player smashes the tiles when Space is pressed
 	if (!smash && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space))
 	{
 		moving = false;
 		smash = true;
 		lastPosition = player->GetSprite().getPosition();
+		spaceSound.play();
 	}
 
-	// Player Check bound
-	//Get player position
+	// Switch direction when player hits edge of screen
 	sf::Vector2f position = player->GetSprite().getPosition();
 	if (position.x > 480.0f || position.x < 0.0f)
 	{
-		playerMoveSpeed *= -1;
+		if (!outOfBounds)
+		{
+			playerMoveSpeed *= -1;
+			outOfBounds = true;
+		}
+	}
+	if (outOfBounds)
+	{
+		if (position.x <= 485.0f && position.y >= -5.0f)
+		{
+			outOfBounds = false;
+		}
 	}
 
-	//Reset position if out of bound
+	// Handle end of smash action when player falls through screen
 	if (smash && position.y > 480.0f)
 	{
 		smash = false;
@@ -84,32 +117,54 @@ void Game::HandleEvents()
 		moving = true;
 	}
 
+	// handle end of smash when player hits a block
 	if (smash && !moving)
 	{
 		bool collide = false;
 		sf::FloatRect playerRect = player->GetSprite().getGlobalBounds();
-		for (int i = 0;i < tileMapRows && !collide; i++)
+		for (int i = 0; i < tileMapRows && !collide; i++)
 		{
 			for (int j = 0; j < tileMapColumns && !collide; j++)
 			{
+				// NOTE: this section probably needs cleaning up
+				auto destroyTile = [&](int x, int y)
+				{
+					tileRects[x][y] = sf::FloatRect();
+					tileMapArray[x][y] = -1;
+					tileCount--;
+				};
+
 				if (playerRect.intersects(tileRects[i][j]))
 				{
-					tileRects[i][j] = sf::FloatRect();
 					if (tileMapArray[i][j] == currentColor)
 					{
-						score++;
-						//std::cout << "Score : " << score << " Lives:" << lives << std::endl;
+						// NOTE: I'm not sure whether using lambdas in this manner is good or not -sp
+						std::function<void(int, int)> floodFill = [&](int x, int y)
+						{
+							if (x < tileMapRows && y < tileMapColumns && x >= 0 && y >= 0) {
+								if (tileMapArray[x][y] == currentColor) {
+									destroyTile(x, y);
+									score++;
+									floodFill(x + 1, y);
+									floodFill(x - 1, y);
+									floodFill(x, y - 1);
+									floodFill(x, y + 1);
+								}
+							}
+						};
+						floodFill(i, j);
 					}
 					else
 					{
 						lives--;
-						//std::cout << "Score : " << score << " Lives:" << lives << std::endl;
+						destroyTile(i, j);
 					}
-					tileMapArray[i][j] = -1;
+										
 					smash = false;
 					player->SetPosition(lastPosition);
 					moving = true;
 					collide = true;
+					colSound.play();
 				}
 			}
 		}
@@ -142,9 +197,14 @@ void Game::Update()
 
 	if (lives == 0)
 	{
-		GameRunning = false;
+		PauseGame();
+		GameOver = true;
 	}
-	
+	else if (tileCount == 0)
+	{
+		PauseGame();
+		GameWin = true;
+	}
 }
 
 
@@ -158,6 +218,9 @@ void Game::Render()
 	UpdateUI();
 	gameWindow->draw(scoreText);
 	gameWindow->draw(livesText);
+	if (GamePaused && !GameWin && !GameOver) gameWindow->draw(pausedText);
+	else if (GameWin) gameWindow->draw(gameWinText);
+	else if (GameOver) gameWindow->draw(gameOverText);
 	//UI
 	gameWindow->draw(player->GetSprite());
 	DrawTileMap();
@@ -254,6 +317,26 @@ void Game::InitUI()
 	scoreText.setPosition(sf::Vector2f(0.0f, 0.0f));
 	livesText.setPosition(sf::Vector2f(150.0f, 0.0f));
 	//
+	//Find a way to center it according to window
+	pausedText.setFont(font);
+	pausedText.setCharacterSize(48);
+	pausedText.setString("Paused");
+	pausedText.setPosition(140,100);
+
+	// Game win
+
+	gameWinText.setFont(font);
+	gameWinText.setCharacterSize(48);
+	gameWinText.setString("Congratulations !");
+	gameWinText.setPosition(20, 100);
+	
+	// Game over
+	gameOverText.setFont(font);
+	gameOverText.setFillColor(sf::Color::Red);
+	gameOverText.setCharacterSize(48);
+	gameOverText.setString("Game Over!");
+	gameOverText.setPosition(140, 100);
+
 
 }
 
@@ -271,6 +354,16 @@ void Game::UpdateUI()
 	std::string livesString;
 	ss >> livesString;
 	livesText.setString(livesString);
+
 }
 
+void Game::PauseGame()
+{
+	GamePaused = true;
+}
+
+void Game::Close()
+{
+	GameRunning = false;
+}
 
