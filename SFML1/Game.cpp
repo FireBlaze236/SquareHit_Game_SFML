@@ -80,8 +80,46 @@ void Game::HandleEvents()
 			Close();
 		}
 	}
+}
 
+void Game::Update()
+{
+	//Change color at intervals
+	float t = intervalTimer.getElapsedTime().asSeconds();
+	if (moving && t > interval)
+	{
+		intervalTimer.restart();
+		currentColor++;
+		if (currentColor >= colors.size()) currentColor = 0;
+		player->SetColor(colors[currentColor]);
+	}
 	
+	if(moving && !smash)
+	{
+		player->Move(sf::Vector2f(playerMoveSpeed, 0.0f));
+	}
+
+	//Detect collision with player and tile
+	if (smash && !moving)
+	{
+		intervalTimer.restart();
+		float u = 0.1f; //playerSmashSpeed;
+		float s = abs(player->GetSprite().getPosition().y - lastPosition.y);
+		float a = 2.0f;
+		float v = sqrt(u * u + 2 * a * s);
+		player->Move(sf::Vector2f(0.0f, v));
+	}
+
+	if (lives == 0)
+	{
+		PauseGame();
+		GameOver = true;
+	}
+	else if (tileCount == 0)
+	{
+		PauseGame();
+		GameWin = true;
+	}
 	// Player smashes the tiles when Space is pressed
 	if (!smash && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space))
 	{
@@ -159,7 +197,7 @@ void Game::HandleEvents()
 						lives--;
 						destroyTile(i, j);
 					}
-										
+
 					smash = false;
 					player->SetPosition(lastPosition);
 					moving = true;
@@ -168,42 +206,6 @@ void Game::HandleEvents()
 				}
 			}
 		}
-	}
-}
-
-void Game::Update()
-{
-	//Change color at intervals
-	float t = intervalTimer.getElapsedTime().asSeconds();
-	if (moving && t > interval)
-	{
-		intervalTimer.restart();
-		currentColor++;
-		if (currentColor >= colors.size()) currentColor = 0;
-		player->SetColor(colors[currentColor]);
-	}
-	
-	if(moving && !smash)
-	{
-		player->Move(sf::Vector2f(playerMoveSpeed, 0.0f));
-	}
-
-	//Detect collision with player and tile
-	if (smash && !moving)
-	{
-		intervalTimer.restart();
-		player->Move(sf::Vector2f(0.0f, playerSmashSpeed));
-	}
-
-	if (lives == 0)
-	{
-		PauseGame();
-		GameOver = true;
-	}
-	else if (tileCount == 0)
-	{
-		PauseGame();
-		GameWin = true;
 	}
 }
 
