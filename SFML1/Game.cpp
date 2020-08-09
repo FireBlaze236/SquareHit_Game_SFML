@@ -32,12 +32,13 @@ Game::Game(int w, int h, const char* title, int ms, int cn, int cs, int d)
 	InitUI();
 
 	//Init Audio
+	/*
 	musicBuff.loadFromFile("assets\\music.wav");
 	music.setBuffer(musicBuff);
 	//music.setVolume(30.0f);
 	music.setLoop(true);
 	music.play();
-
+	*/
 	colSoundBuf.loadFromFile("assets\\col.wav");
 	colSound.setBuffer(colSoundBuf);
 	spaceSoundBuf.loadFromFile("assets\\space.wav");

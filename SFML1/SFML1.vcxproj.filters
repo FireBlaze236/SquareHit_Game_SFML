@@ -24,12 +24,18 @@
     <ClCompile Include="Player.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Menu.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Player.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Menu.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -40,10 +46,16 @@
     <Image Include="assets\tiles.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="assets\Bak.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Font Include="assets\font.ttf" />
     <Font Include="assets\arial.ttf" />
+    <Font Include="assets\FredokaOne.ttf">
+      <Filter>Resource Files</Filter>
+    </Font>
   </ItemGroup>
   <ItemGroup>
     <Media Include="assets\music.wav">
