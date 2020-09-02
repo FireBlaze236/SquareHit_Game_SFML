@@ -64,10 +64,16 @@
     <Image Include="assets\tiles.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="assets\Bak.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Font Include="assets\font.ttf" />
     <Font Include="assets\arial.ttf" />
+    <Font Include="assets\FredokaOne.ttf">
+      <Filter>Resource Files</Filter>
+    </Font>
   </ItemGroup>
   <ItemGroup>
     <Media Include="assets\music.wav">

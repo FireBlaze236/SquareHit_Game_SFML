@@ -15,10 +15,11 @@ public:
 	int diff = 1;
 	sf::RenderWindow* gameWindow;
 	bool GamePaused;
+	bool GameMainMenu;
 private:
 	//main variables
 	bool GameRunning;
-	
+
 	bool GameWin;
 	bool GameOver;
 	//sf::RenderWindow* gameWindow;
@@ -74,6 +75,7 @@ public:
 
 	// Util
 	void PauseGame();
+	void GotoMenu();
 	void Close();
 };
 

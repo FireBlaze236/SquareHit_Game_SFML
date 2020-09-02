@@ -14,7 +14,10 @@ Game::Game(int w, int h, const char* title, int ms, int cn, int cs, int d) :
 	player(new Player()),
 	hud(Hud(font))
 {
+	//TODO: use better flags
 	GamePaused = false;
+	GameMainMenu = true;
+
 	//Generate Random colors
 	GenerateColors(ColorSeed, std::min(10, ColorsNum));
 	currentColor = 0;
@@ -39,12 +42,13 @@ Game::Game(int w, int h, const char* title, int ms, int cn, int cs, int d) :
 	font.loadFromFile("assets\\font2.ttf");
 
 	//Init Audio
+	/*
 	musicBuff.loadFromFile("assets\\music.wav");
 	music.setBuffer(musicBuff);
 	//music.setVolume(30.0f);
 	music.setLoop(true);
 	music.play();
-
+	*/
 	colSoundBuf.loadFromFile("assets\\col.wav");
 	colSound.setBuffer(colSoundBuf);
 	spaceSoundBuf.loadFromFile("assets\\space.wav");
@@ -84,7 +88,9 @@ void Game::HandleEvents()
 
 		if ((GameWin || GameOver) && e.type == sf::Event::KeyReleased && e.key.code == sf::Keyboard::Escape)
 		{
-			Close();
+			//Close();
+			InitUI();
+			GotoMenu();
 		}
 	}
 	// Game HUD (Texts)
@@ -98,6 +104,8 @@ void Game::HandleEvents()
 	hud.Update(score, lives, gstate);
 }
 
+
+
 void Game::Update()
 {
 	//Change color at intervals
@@ -106,7 +114,7 @@ void Game::Update()
 	{
 		intervalTimer.restart();
 		currentColor++;
-		if (currentColor >= colors.size()) currentColor = 0;
+		if (currentColor >= (int)colors.size()) currentColor = 0;
 		player->SetColor(colors[currentColor]);
 	}
 	
@@ -324,6 +332,11 @@ void Game::Render()
 void Game::PauseGame()
 {
 	GamePaused = true;
+}
+
+void Game::GotoMenu()
+{
+	GameMainMenu = true;
 }
 
 void Game::Close()
