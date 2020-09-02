@@ -7,7 +7,10 @@
 Game::Game(int w, int h, const char* title, int ms, int cn, int cs, int d) 
 	: MapSeed(ms),ColorsNum(cn), ColorSeed(cs), diff(d), GameRunning(true), gameWindow(new sf::RenderWindow(sf::VideoMode(w, h), title)), player(new Player())
 {
+	//TODO: use better flags
 	GamePaused = false;
+	GameMainMenu = true;
+
 	//Generate Random colors
 	GenerateColors(ColorSeed, std::min(10, ColorsNum));
 	currentColor = 0;
@@ -78,10 +81,14 @@ void Game::HandleEvents()
 
 		if ((GameWin || GameOver) && e.type == sf::Event::KeyReleased && e.key.code == sf::Keyboard::Escape)
 		{
-			Close();
+			//Close();
+			InitUI();
+			GotoMenu();
 		}
 	}
 }
+
+
 
 void Game::Update()
 {
@@ -91,7 +98,7 @@ void Game::Update()
 	{
 		intervalTimer.restart();
 		currentColor++;
-		if (currentColor >= colors.size()) currentColor = 0;
+		if (currentColor >= (int)colors.size()) currentColor = 0;
 		player->SetColor(colors[currentColor]);
 	}
 	
@@ -217,7 +224,8 @@ void Game::Render()
 	//Clear for render
 	gameWindow->clear();
 	//Area for rendering everything
-	//UI
+
+	if (GameMainMenu)	//UI
 	UpdateUI();
 	gameWindow->draw(scoreText);
 	gameWindow->draw(livesText);
@@ -229,7 +237,6 @@ void Game::Render()
 	DrawTileMap();
 	//Display rendered output
 	gameWindow->display();
-
 }
 
 void Game::GenerateColors(int seed, int n)
@@ -302,7 +309,6 @@ void Game::DrawTileMap()
 		//advance row
 		drawPos.y += 32 + spacing;
 	}
-	
 }
 
 
@@ -339,8 +345,6 @@ void Game::InitUI()
 	gameOverText.setCharacterSize(48);
 	gameOverText.setString("Game Over!");
 	gameOverText.setPosition(140, 100);
-
-
 }
 
 void Game::UpdateUI()
@@ -363,6 +367,11 @@ void Game::UpdateUI()
 void Game::PauseGame()
 {
 	GamePaused = true;
+}
+
+void Game::GotoMenu()
+{
+	GameMainMenu = true;
 }
 
 void Game::Close()

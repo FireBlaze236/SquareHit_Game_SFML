@@ -13,9 +13,9 @@ int main()
 	int ms,cs,cn,d;
 
 	ms = 1;
-	cs = 9;
-	cn = 7;
-	d = 5;
+	cs = 1;
+	cn = 1;
+	d = 1;
 
 	/*std::cout << "Enter Map Seed : ";
 	std::cin >> ms;
@@ -33,89 +33,40 @@ int main()
 	//std::cout << "Game loaded!" << std::endl;
 	//std::cout << "Enjoy!";
 
-	sf::RenderWindow window(sf::VideoMode(1280, 720), "Test 32");
+	//sf::RenderWindow window(sf::VideoMode(512, 512), "Test 32");
 
-	sf::Texture texture;
-	if (!texture.loadFromFile("Bak.png"))
+	Game game(512, 512, "SquareHit", ms, cn, cs, d);
+	Menu menu(*(game.gameWindow));
+
+	game.gameWindow->setVisible(true);
+	// Game Loop
+	while (game.IsRunning())
 	{
-		return 1;
+		if (game.GameMainMenu) {
+			menu.Update(game.GameMainMenu);
+			menu.draw();
+		}
+		else {
+			game.HandleEvents();
+			if ((!game.GamePaused))
+				game.Update();
+			game.Render();
+		}
 	}
 
-	sf::Sprite sprite;
-	sf::Vector2u size = texture.getSize();
-	sprite.setTexture(texture);
+	game.gameWindow->setVisible(false);
 
-	Menu menu((float)window.getSize().x, (float)window.getSize().y);
+	/*
 
-	while (window.isOpen())
-	{
-		sf::Event event;
+		//window.clear(sf::Color::Black);
 
-		while (window.pollEvent(event))
-		{
-			switch (event.type)
-			{
-			case sf::Event::KeyReleased:
-				switch (event.key.code)
-				{
-				case sf::Keyboard::Up:
-					menu.MoveUp();
-					break;
-
-				case sf::Keyboard::Down:
-					menu.MoveDown();
-					break;
-
-				case sf::Keyboard::Return:
-					switch (menu.GetPressedItem())
-					{
-					case 0:
-					{
-						std::cout << "Play button has been pressed" << std::endl;
-
-						Game game(512, 512, "SquareHit", ms, cn, cs, d);
-
-						game.gameWindow->setVisible(true);
-						// Game Loop
-						while (game.IsRunning())
-						{
-							game.HandleEvents();
-							if (!game.GamePaused)
-								game.Update();
-							game.Render();
-						}
-
-						game.gameWindow->setVisible(false);
-						
-						break;
-					}
-					case 1:
-						std::cout << "Option button has been pressed" << std::endl;
-						break;
-					case 2:
-						std::cout << "Credit button has been pressed" << std::endl;
-						break;
-					case 3:
-						window.close();
-						break;
-					}
-					break;
-				}
-				break;
-			case sf::Event::Closed:
-				window.close();
-				break;
-			}
-		}
-
-		window.clear(sf::Color::Black);
-
-		window.draw(sprite);
+		//window.draw(sprite);
 
 		menu.draw(window);
 
 		window.display();
 	}
+	*/
 
     return 0;
 }
