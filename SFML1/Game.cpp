@@ -87,11 +87,19 @@ void Game::HandleEvents()
 			Close();
 		}
 	}
+	// Game HUD (Texts)
+	int gstate = -1;
+	if (GamePaused && !(GameWin || GameOver))
+		gstate = 0;
+	else if (GameWin)
+		gstate = 1;
+	else if (GameOver)
+		gstate = 2;
+	hud.Update(score, lives, gstate);
 }
 
 void Game::Update()
 {
-	hud.Update(score, lives);
 	//Change color at intervals
 	float t = intervalTimer.getElapsedTime().asSeconds();
 	if (moving && t > interval)
@@ -176,13 +184,13 @@ void Game::Update()
 				// NOTE: this section probably needs cleaning up
 				auto destroyTile = [&](int x, int y)
 				{
-					tiles[x][y].rect = sf::FloatRect();
+					//tiles[x][y].rect = sf::FloatRect();
 					tiles[x][y].isDestroyed = true;
 					//tileMapArray[x][y] = -1;
 					tileCount--;
 				};
 
-				if (playerRect.intersects(tiles[i][j].rect))
+				if (playerRect.intersects(tiles[i][j].rect) && !tiles[i][j].isDestroyed)
 				{
 					if (tiles[i][j].color == currentColor)
 					{
@@ -219,19 +227,6 @@ void Game::Update()
 	}
 }
 
-void Game::GenerateTileMap(int seed, int rows, int columns)
-{
-	srand(seed);
-	int n = colors.size(); // match colors
-	for (int i = 0; i < rows; i++)
-	{
-		for (int j = 0; j < columns; j++)
-		{
-			tiles[i][j].color = rand() % n;
-		}
-	}
-}
-
 
 void Game::GenerateColors(int seed, int n)
 {
@@ -253,6 +248,20 @@ void Game::GenerateColors(int seed, int n)
 	}
 }
 
+void Game::GenerateTileMap(int seed, int rows, int columns)
+{
+	srand(seed);
+	int n = colors.size(); // match colors
+	for (int i = 0; i < rows; i++)
+	{
+		for (int j = 0; j < columns; j++)
+		{
+			tiles[i][j].color = rand() % n;
+		}
+	}
+}
+
+
 void Game::DrawTileMap()
 {
 	float initialx = 32.0f;
@@ -270,14 +279,15 @@ void Game::DrawTileMap()
 			sf::Color col = colors[idx];
 			sf::Vector2f pos = drawPos;
 
-			if (tiles[i][j].isDestroyed) {
-				col.a = tiles[i][j].opacity;
-				pos.y += tiles[i][j].ascend;
-			}
+			//if (tiles[i][j].isDestroyed) {
+			//	col.a = tiles[i][j].opacity;
+			//	pos.y += tiles[i][j].ascend;
+			//}
 
 			tileSprite.setPosition(pos);
 			tileSprite.setColor(col);
-			gameWindow->draw(tileSprite);
+			if (!tiles[i][j].isDestroyed)
+				gameWindow->draw(tileSprite);
 
 			//store rect + color for collision detect
 			if (idx >= 0)

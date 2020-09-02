@@ -11,9 +11,10 @@ class Hud
 	sf::Text pausedText;
 	sf::Text gameWinText;
 	sf::Text gameOverText;
+	int _gstate;
 public:
 	void Draw(sf::RenderWindow* render);
-	void Update(int score, int lives);
+	void Update(int score, int lives, int state);
 
 	Hud() = delete;
 	Hud(sf::Font& f);

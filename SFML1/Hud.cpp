@@ -35,7 +35,7 @@ Hud::Hud(sf::Font& f) : font(f)
 	gameOverText.setPosition(140, 100);
 }
 
-void Hud::Update(int score, int lives)
+void Hud::Update(int score, int lives, int state)
 {
 	std::stringstream ss;
 	ss << "Score:" << score;
@@ -50,13 +50,24 @@ void Hud::Update(int score, int lives)
 	ss >> livesString;
 	livesText.setString(livesString);
 
+	_gstate = state;
 }
 
 void Hud::Draw(sf::RenderWindow* render)
 {
 	render->draw(scoreText);
 	render->draw(livesText);
-	//if (GamePaused && !GameWin && !GameOver) gameWindow->draw(pausedText);
-	//else if (GameWin) gameWindow->draw(gameWinText);
-	//else if (GameOver) gameWindow->draw(gameOverText);
+	switch (_gstate) {
+	case 0:
+		render->draw(pausedText);
+		break;
+	case 1:
+		render->draw(gameWinText);
+		break;
+	case 2:
+		render->draw(gameOverText);
+		break;
+	default:
+		break;
+	}
 }
