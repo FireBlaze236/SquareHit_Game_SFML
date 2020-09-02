@@ -1,13 +1,23 @@
 #include "Game.h"
+
 #include <iostream>
 #include <string>
-#include <sstream>
 #include <functional>
 
-Game::Game(int w, int h, const char* title, int ms, int cn, int cs, int d) 
-	: MapSeed(ms),ColorsNum(cn), ColorSeed(cs), diff(d), GameRunning(true), gameWindow(new sf::RenderWindow(sf::VideoMode(w, h), title)), player(new Player())
+Game::Game(int w, int h, const char* title, int ms, int cn, int cs, int d) : 
+	MapSeed(ms),
+	ColorsNum(cn), 
+	ColorSeed(cs), 
+	diff(d), 
+	GameRunning(true), 
+	gameWindow(new sf::RenderWindow(sf::VideoMode(w, h), title)), 
+	player(new Player()),
+	hud(Hud(font))
 {
+	//TODO: use better flags
 	GamePaused = false;
+	GameMainMenu = true;
+
 	//Generate Random colors
 	GenerateColors(ColorSeed, std::min(10, ColorsNum));
 	currentColor = 0;
@@ -24,21 +34,19 @@ Game::Game(int w, int h, const char* title, int ms, int cn, int cs, int d)
 	interval = 1;
 	if (diff >= 2) playerMoveSpeed *= std::min(5, diff) / 2;
 	//Generate Tile Map
-	GenerateTileMap(MapSeed,tileMapRows, tileMapColumns);
+	GenerateTileMap(MapSeed, tileMapRows, tileMapColumns);
 	tileTexture.loadFromFile("assets\\tiles.png");
 	tileSprite.setTexture(tileTexture);
 	
 	//Init UI
-	InitUI();
+	font.loadFromFile("assets\\font2.ttf");
 
 	//Init Audio
-	/*
 	musicBuff.loadFromFile("assets\\music.wav");
 	music.setBuffer(musicBuff);
 	//music.setVolume(30.0f);
 	music.setLoop(true);
 	music.play();
-	*/
 	colSoundBuf.loadFromFile("assets\\col.wav");
 	colSound.setBuffer(colSoundBuf);
 	spaceSoundBuf.loadFromFile("assets\\space.wav");
@@ -78,10 +86,23 @@ void Game::HandleEvents()
 
 		if ((GameWin || GameOver) && e.type == sf::Event::KeyReleased && e.key.code == sf::Keyboard::Escape)
 		{
-			Close();
+			//Close();
+			GotoMenu();
+			ResetLevel();
 		}
 	}
+	// Game HUD (Texts)
+	int gstate = -1;
+	if (GamePaused && !(GameWin || GameOver || GameMainMenu))
+		gstate = 0;
+	else if (GameWin)
+		gstate = 1;
+	else if (GameOver)
+		gstate = 2;
+	hud.Update(score, lives, gstate);
 }
+
+
 
 void Game::Update()
 {
@@ -91,7 +112,7 @@ void Game::Update()
 	{
 		intervalTimer.restart();
 		currentColor++;
-		if (currentColor >= colors.size()) currentColor = 0;
+		if (currentColor >= (int)colors.size()) currentColor = 0;
 		player->SetColor(colors[currentColor]);
 	}
 	
@@ -107,7 +128,7 @@ void Game::Update()
 		float u = 0.1f; //playerSmashSpeed;
 		float s = abs(player->GetSprite().getPosition().y - lastPosition.y);
 		float a = 2.0f;
-		float v = sqrt(u * u + 2 * a * s);
+		float v = std::sqrt(u * u + 2 * a * s);
 		player->Move(sf::Vector2f(0.0f, v));
 	}
 
@@ -165,23 +186,25 @@ void Game::Update()
 		{
 			for (int j = 0; j < tileMapColumns && !collide; j++)
 			{
+				tiles[i][j].Update();
 				// NOTE: this section probably needs cleaning up
 				auto destroyTile = [&](int x, int y)
 				{
-					tileRects[x][y] = sf::FloatRect();
-					tileMapArray[x][y] = -1;
+					//tiles[x][y].rect = sf::FloatRect();
+					tiles[x][y].isDestroyed = true;
+					//tileMapArray[x][y] = -1;
 					tileCount--;
 				};
 
-				if (playerRect.intersects(tileRects[i][j]))
+				if (playerRect.intersects(tiles[i][j].rect) && !tiles[i][j].isDestroyed)
 				{
-					if (tileMapArray[i][j] == currentColor)
+					if (tiles[i][j].color == currentColor)
 					{
 						// NOTE: I'm not sure whether using lambdas in this manner is good or not -sp
 						std::function<void(int, int)> floodFill = [&](int x, int y)
 						{
 							if (x < tileMapRows && y < tileMapColumns && x >= 0 && y >= 0) {
-								if (tileMapArray[x][y] == currentColor) {
+								if (tiles[x][y].color == currentColor && !tiles[x][y].isDestroyed) {
 									destroyTile(x, y);
 									score++;
 									floodFill(x + 1, y);
@@ -211,32 +234,11 @@ void Game::Update()
 }
 
 
-
-void Game::Render()
-{
-	//Clear for render
-	gameWindow->clear();
-	//Area for rendering everything
-	//UI
-	UpdateUI();
-	gameWindow->draw(scoreText);
-	gameWindow->draw(livesText);
-	if (GamePaused && !GameWin && !GameOver) gameWindow->draw(pausedText);
-	else if (GameWin) gameWindow->draw(gameWinText);
-	else if (GameOver) gameWindow->draw(gameOverText);
-	//UI
-	gameWindow->draw(player->GetSprite());
-	DrawTileMap();
-	//Display rendered output
-	gameWindow->display();
-
-}
-
 void Game::GenerateColors(int seed, int n)
 {
 	srand(seed);
 
-	for (int i = 0;i < n;i++)
+	for (int i = 0; i < n; i++)
 	{
 		int rnr = 100 + (rand() % 100);
 		int rng = 100 + (rand() % 100);
@@ -247,7 +249,7 @@ void Game::GenerateColors(int seed, int n)
 			rng += 55;
 		else
 			rnb += 55;
-		sf::Color c(rnr,rng,rnb,255);
+		sf::Color c(rnr, rng, rnb, 255);
 		colors.push_back(c);
 	}
 }
@@ -256,42 +258,47 @@ void Game::GenerateTileMap(int seed, int rows, int columns)
 {
 	srand(seed);
 	int n = colors.size(); // match colors
-	for (int i = 0;i < rows;i++)
+	for (int i = 0; i < rows; i++)
 	{
-		for (int j = 0;j < columns;j++)
+		for (int j = 0; j < columns; j++)
 		{
-			tileMapArray[i][j] = rand() % n;
+			tiles[i][j].color = rand() % n;
 		}
 	}
-	
 }
+
 
 void Game::DrawTileMap()
 {
-	
 	float initialx = 32.0f;
 	float initialy = 200.0f;
 	sf::Vector2f drawPos = sf::Vector2f(initialx, initialy);
 	float spacing = 5.0f;
-	for (int i = 0;i < tileMapRows; i++)
+	for (int i = 0; i < tileMapRows; i++)
 	{
-		for (int j = 0; j < tileMapColumns;j++)
+		for (int j = 0; j < tileMapColumns; j++)
 		{
-			int idx = tileMapArray[i][j];
+			int idx = tiles[i][j].color;
 
 			//Draw single tile
-			
-			tileSprite.setPosition(drawPos);
-			if (idx >= 0)
-			{
-				tileSprite.setColor(colors[idx]);
+
+			sf::Color col = colors[idx];
+			sf::Vector2f pos = drawPos;
+
+			//if (tiles[i][j].isDestroyed) {
+			//	col.a = tiles[i][j].opacity;
+			//	pos.y += tiles[i][j].ascend;
+			//}
+
+			tileSprite.setPosition(pos);
+			tileSprite.setColor(col);
+			if (!tiles[i][j].isDestroyed)
 				gameWindow->draw(tileSprite);
-			}
 
 			//store rect + color for collision detect
 			if (idx >= 0)
 			{
-				tileRects[i][j] = tileSprite.getGlobalBounds();
+				tiles[i][j].rect = tileSprite.getGlobalBounds();
 			}
 			//advance column
 			drawPos.x += 32 + spacing;
@@ -302,61 +309,21 @@ void Game::DrawTileMap()
 		//advance row
 		drawPos.y += 32 + spacing;
 	}
-	
-}
-
-
-void Game::InitUI()
-{
-	font.loadFromFile("assets\\font.ttf");
-	scoreText.setFont(font);
-	livesText.setFont(font);
-	timerText.setFont(font);
-
-	scoreText.setCharacterSize(24);
-	livesText.setCharacterSize(24);
-	timerText.setCharacterSize(24);
-
-	scoreText.setPosition(sf::Vector2f(0.0f, 0.0f));
-	livesText.setPosition(sf::Vector2f(150.0f, 0.0f));
-	//
-	//Find a way to center it according to window
-	pausedText.setFont(font);
-	pausedText.setCharacterSize(48);
-	pausedText.setString("Paused");
-	pausedText.setPosition(140,100);
-
-	// Game win
-
-	gameWinText.setFont(font);
-	gameWinText.setCharacterSize(48);
-	gameWinText.setString("Congratulations !");
-	gameWinText.setPosition(20, 100);
-	
-	// Game over
-	gameOverText.setFont(font);
-	gameOverText.setFillColor(sf::Color::Red);
-	gameOverText.setCharacterSize(48);
-	gameOverText.setString("Game Over!");
-	gameOverText.setPosition(140, 100);
-
 
 }
 
-void Game::UpdateUI()
+
+void Game::Render()
 {
-	std::stringstream ss;
-	ss << "Score:" << score;
-	std::string scoreString;
-	ss >> scoreString;
-	scoreText.setString(scoreString);
-
-	ss.clear();
-
-	ss << "Lives:" << lives;
-	std::string livesString;
-	ss >> livesString;
-	livesText.setString(livesString);
+	//Clear for render
+	gameWindow->clear();
+	//Area for rendering everything
+	//UI
+	hud.Draw(gameWindow);
+	gameWindow->draw(player->GetSprite());
+	DrawTileMap();
+	//Display rendered output
+	gameWindow->display();
 
 }
 
@@ -365,8 +332,30 @@ void Game::PauseGame()
 	GamePaused = true;
 }
 
+void Game::GotoMenu()
+{
+	GameMainMenu = true;
+}
+
 void Game::Close()
 {
 	GameRunning = false;
 }
 
+void Game::ResetLevel()
+{
+	GamePaused = false;
+	GameOver = false;
+	GameWin = false;
+	player->SetPosition(sf::Vector2f(0.0f, 12.0f));
+	score = 0;
+	lives = 25;
+	static const int tileMapRows = 8, tileMapColumns = 12;
+	GenerateTileMap(MapSeed, tileMapRows, tileMapColumns);
+	for (int i = 0; i < tileMapRows; i++) {
+		for (int j = 0; j < tileMapColumns; j++) {
+			tiles[i][j].isDestroyed = false;
+		}
+	}
+	tileCount = tileMapRows * tileMapColumns;
+}
