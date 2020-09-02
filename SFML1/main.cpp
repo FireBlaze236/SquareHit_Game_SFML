@@ -12,9 +12,9 @@ int main()
 	std::cin.get();*/
 	int ms,cs,cn,d;
 
-	ms = 1;
-	cs = 1;
-	cn = 1;
+	ms = 71;
+	cs = 1 + (rand()%420);
+	cn = 6;
 	d = 1;
 
 	/*std::cout << "Enter Map Seed : ";
@@ -42,15 +42,27 @@ int main()
 	// Game Loop
 	while (game.IsRunning())
 	{
-		if (game.GameMainMenu) {
+		
+		if (game.GameMainMenu == 1)
+		{
 			menu.Update(game.GameMainMenu);
-			menu.draw();
+			menu.draw(0, 4);
 		}
-		else {
+		else if (game.GameMainMenu == 0) 
+		{
 			game.HandleEvents();
 			if ((!game.GamePaused))
 				game.Update();
 			game.Render();
+		}
+		else if (game.GameMainMenu == 2)
+		{
+			menu.OptionUpdate(game.GameMainMenu, game);
+			menu.draw(4, 7);
+		}
+		else
+		{
+			break;
 		}
 	}
 

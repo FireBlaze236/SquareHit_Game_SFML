@@ -14,7 +14,7 @@ public:
 	int diff = 1;
 	sf::RenderWindow* gameWindow;
 	bool GamePaused;
-	bool GameMainMenu;
+	int GameMainMenu;
 private:
 	//main variables
 	bool GameRunning;
@@ -54,10 +54,11 @@ private:
 
 	//Audio
 	sf::SoundBuffer musicBuff;
-	sf::Sound music;
+	
 	sf::SoundBuffer colSoundBuf, spaceSoundBuf;
 	sf::Sound spaceSound, colSound;
 public:
+	sf::Sound music;
 	Game() = delete;
 	Game(int w, int h, const char* title, int ms, int cn, int cs, int d);
 	~Game();

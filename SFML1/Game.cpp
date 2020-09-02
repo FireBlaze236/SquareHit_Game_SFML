@@ -16,7 +16,7 @@ Game::Game(int w, int h, const char* title, int ms, int cn, int cs, int d) :
 {
 	//TODO: use better flags
 	GamePaused = false;
-	GameMainMenu = true;
+	GameMainMenu = 1;
 
 	//Generate Random colors
 	GenerateColors(ColorSeed, std::min(10, ColorsNum));
@@ -44,7 +44,7 @@ Game::Game(int w, int h, const char* title, int ms, int cn, int cs, int d) :
 	//Init Audio
 	musicBuff.loadFromFile("assets\\music.wav");
 	music.setBuffer(musicBuff);
-	//music.setVolume(30.0f);
+	//music.setVolume(0.0f);
 	music.setLoop(true);
 	music.play();
 	colSoundBuf.loadFromFile("assets\\col.wav");
@@ -81,6 +81,10 @@ void Game::HandleEvents()
 			{
 				GamePaused = !GamePaused;
 			}
+			if (e.key.code == sf::Keyboard::Q && GamePaused)
+			{
+				GotoMenu();
+			}
 		}
 		}
 
@@ -93,7 +97,7 @@ void Game::HandleEvents()
 	}
 	// Game HUD (Texts)
 	int gstate = -1;
-	if (GamePaused && !(GameWin || GameOver || GameMainMenu))
+	if (GamePaused && !(GameWin || GameOver || GameMainMenu!=0))
 		gstate = 0;
 	else if (GameWin)
 		gstate = 1;
@@ -334,7 +338,7 @@ void Game::PauseGame()
 
 void Game::GotoMenu()
 {
-	GameMainMenu = true;
+	GameMainMenu = 1;
 }
 
 void Game::Close()
