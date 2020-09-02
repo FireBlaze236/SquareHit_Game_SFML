@@ -4,7 +4,6 @@
 #include "Player.h"
 #include "Hud.h"
 #include "Tile.h"
-#include "Level.h"
 
 class Game
 {
@@ -72,6 +71,7 @@ public:
 	void GenerateColors(int seed, int n);
 	void GenerateTileMap(int seed, int rows, int columns);
 	void DrawTileMap();
+	void ResetLevel();
 
 	// Util
 	void PauseGame();

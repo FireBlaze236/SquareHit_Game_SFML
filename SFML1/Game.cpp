@@ -42,13 +42,11 @@ Game::Game(int w, int h, const char* title, int ms, int cn, int cs, int d) :
 	font.loadFromFile("assets\\font2.ttf");
 
 	//Init Audio
-	/*
 	musicBuff.loadFromFile("assets\\music.wav");
 	music.setBuffer(musicBuff);
 	//music.setVolume(30.0f);
 	music.setLoop(true);
 	music.play();
-	*/
 	colSoundBuf.loadFromFile("assets\\col.wav");
 	colSound.setBuffer(colSoundBuf);
 	spaceSoundBuf.loadFromFile("assets\\space.wav");
@@ -89,13 +87,13 @@ void Game::HandleEvents()
 		if ((GameWin || GameOver) && e.type == sf::Event::KeyReleased && e.key.code == sf::Keyboard::Escape)
 		{
 			//Close();
-			InitUI();
 			GotoMenu();
+			ResetLevel();
 		}
 	}
 	// Game HUD (Texts)
 	int gstate = -1;
-	if (GamePaused && !(GameWin || GameOver))
+	if (GamePaused && !(GameWin || GameOver || GameMainMenu))
 		gstate = 0;
 	else if (GameWin)
 		gstate = 1;
@@ -344,3 +342,20 @@ void Game::Close()
 	GameRunning = false;
 }
 
+void Game::ResetLevel()
+{
+	GamePaused = false;
+	GameOver = false;
+	GameWin = false;
+	player->SetPosition(sf::Vector2f(0.0f, 12.0f));
+	score = 0;
+	lives = 25;
+	static const int tileMapRows = 8, tileMapColumns = 12;
+	GenerateTileMap(MapSeed, tileMapRows, tileMapColumns);
+	for (int i = 0; i < tileMapRows; i++) {
+		for (int j = 0; j < tileMapColumns; j++) {
+			tiles[i][j].isDestroyed = false;
+		}
+	}
+	tileCount = tileMapRows * tileMapColumns;
+}
