@@ -2,6 +2,9 @@
 #include "SFML/Graphics.hpp"
 #include "SFML/Audio.hpp"
 #include "Player.h"
+#include "Hud.h"
+#include "Tile.h"
+#include "Level.h"
 
 class Game
 {
@@ -40,20 +43,14 @@ private:
 	sf::Texture tileTexture;
 	static const int tileMapRows = 8, tileMapColumns = 12;
 	int tileCount = tileMapRows * tileMapColumns;
-	sf::FloatRect tileRects[tileMapRows][tileMapColumns];
-	int tileMapArray[tileMapRows][tileMapColumns];
-	//UI variables
+	Tile tiles[tileMapRows][tileMapColumns];
+	//sf::FloatRect tileRects[tileMapRows][tileMapColumns];
+	//int tileMapArray[tileMapRows][tileMapColumns];
 
 	int score = 0;
 	int lives = 25;
 	sf::Font font;
-	sf::Text scoreText;
-	sf::Text livesText;
-	sf::Text timerText; // Timer to be implemented
-	sf::Text pausedText;
-	sf::Text gameWinText;
-	sf::Text gameOverText;
-	//
+	Hud hud;
 
 	//Audio
 	sf::SoundBuffer musicBuff;
@@ -74,9 +71,6 @@ public:
 	void GenerateColors(int seed, int n);
 	void GenerateTileMap(int seed, int rows, int columns);
 	void DrawTileMap();
-	//Ui function
-	void InitUI();
-	void UpdateUI();
 
 	// Util
 	void PauseGame();
