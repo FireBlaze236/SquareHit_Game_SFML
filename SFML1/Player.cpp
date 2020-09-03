@@ -4,7 +4,7 @@
 
 Player::Player()
 {
-	playerTexture.loadFromFile("assets\\player.png");
+	playerTexture.loadFromFile("assets/player.png");
 	playerSprite.setTexture(playerTexture);
 }
 

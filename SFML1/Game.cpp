@@ -1,5 +1,4 @@
 #include "Game.h"
-
 #include <iostream>
 #include <string>
 #include <functional>
@@ -35,21 +34,21 @@ Game::Game(int w, int h, const char* title, int ms, int cn, int cs, int d) :
 	if (diff >= 2) playerMoveSpeed *= std::min(5, diff) / 2;
 	//Generate Tile Map
 	GenerateTileMap(MapSeed, tileMapRows, tileMapColumns);
-	tileTexture.loadFromFile("assets\\tiles.png");
+	tileTexture.loadFromFile("assets/tiles.png");
 	tileSprite.setTexture(tileTexture);
 	
 	//Init UI
-	font.loadFromFile("assets\\font.ttf");
+	font.loadFromFile("assets/font.ttf");
 
 	//Init Audio
-	musicBuff.loadFromFile("assets\\music.wav");
+	musicBuff.loadFromFile("assets/music.wav");
 	music.setBuffer(musicBuff);
 	//music.setVolume(0.0f);
 	music.setLoop(true);
 	music.play();
-	colSoundBuf.loadFromFile("assets\\col.wav");
+	colSoundBuf.loadFromFile("assets/col.wav");
 	colSound.setBuffer(colSoundBuf);
-	spaceSoundBuf.loadFromFile("assets\\space.wav");
+	spaceSoundBuf.loadFromFile("assets/space.wav");
 	spaceSound.setBuffer(spaceSoundBuf);
 }
 

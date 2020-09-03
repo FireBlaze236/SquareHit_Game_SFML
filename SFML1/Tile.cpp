@@ -10,7 +10,7 @@ void Tile::Update()
 	}
 }
 
-Tile::Tile() {
+Tile::Tile():color(0) {
 	isDestroyed = false;
 	opacity = 255;
 	ascend = 0.0f;
