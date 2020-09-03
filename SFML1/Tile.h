@@ -8,7 +8,7 @@ public:
 	sf::FloatRect rect;
 	int color;
 	bool isDestroyed;
-	char opacity;
+	int opacity;
 	float ascend;
 	void Update();
 	Tile();

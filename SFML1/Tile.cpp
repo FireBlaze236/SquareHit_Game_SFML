@@ -4,10 +4,9 @@ void Tile::Update()
 {
 	if (isDestroyed)
 	{
-		opacity = 0;
-		//if (!opacity)
-		//	opacity--;
-		//ascend += 1.0f;
+		if (opacity > 0)
+			opacity -= 15;
+		ascend += 1.0f;
 	}
 }
 

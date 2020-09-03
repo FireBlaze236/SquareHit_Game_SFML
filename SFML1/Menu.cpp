@@ -5,15 +5,17 @@
 Menu::Menu(sf::RenderWindow& wnd)
 {
 	window = &wnd;
-	float width = (float)window->getSize().x;
-	float height = (float)window->getSize().y;
+	width = (float)window->getSize().x;
+	height = (float)window->getSize().y;
+
 	//Load Resources
 	//TODO: replace exit with throw
+
 	if (!texture.loadFromFile("assets/bak1.png"))
 	{
 		exit(2);
 	}
-	if (!font.loadFromFile("assets/font2.ttf"))
+	if (!font.loadFromFile("assets/font.ttf"))
 	{
 		exit(2);
 	}
@@ -26,65 +28,28 @@ Menu::Menu(sf::RenderWindow& wnd)
 	sprite.setPosition(sf::Vector2f(0.0f, 0.0f));
 	sprite.setScale(0.50f, 0.50f);
 
-	menu[0].setFont(font);
-	menu[0].setFillColor(sf::Color::Yellow);
-	menu[0].setString("Play");
-	menu[0].setPosition(sf::Vector2f((width / 2) - (menu[0].getGlobalBounds().width / 2), height / (4 + 1) * 1));
-
-	menu[1].setFont(font);
-	menu[1].setFillColor(sf::Color::White);
-	menu[1].setString("Options");
-	menu[1].setPosition(sf::Vector2f((width / 2) - (menu[1].getGlobalBounds().width / 2), height / (4 + 1) * 2));
-
-	menu[2].setFont(font);
-	menu[2].setFillColor(sf::Color::White);
-	menu[2].setString("Credit");
-	menu[2].setPosition(sf::Vector2f((width / 2) - (menu[2].getGlobalBounds().width / 2), height / (4 + 1) * 3));
-
-	menu[3].setFont(font);
-	menu[3].setFillColor(sf::Color::White);
-	menu[3].setString("Exit");
-	menu[3].setPosition(sf::Vector2f((width / 2) - (menu[3].getGlobalBounds().width / 2), height / (4 + 1) * 4));
-
-	menu[4].setFont(font);
-	menu[4].setFillColor(sf::Color::Yellow);
-	menu[4].setString("7");
-	menu[4].setPosition(sf::Vector2f((width / 2) - (menu[4].getGlobalBounds().width / 2), height / (4 + 1) * 1));
-
-	menu[5].setFont(font);
-	menu[5].setFillColor(sf::Color::White);
-	menu[5].setString("1");
-	menu[5].setPosition(sf::Vector2f((width / 2) - (menu[5].getGlobalBounds().width / 2), height / (4 + 1) * 2));
-
-	menu[6].setFont(font);
-	menu[6].setFillColor(sf::Color::White);
-	menu[6].setString("ON");
-	menu[6].setPosition(sf::Vector2f((width / 2) - (menu[6].getGlobalBounds().width / 2), height / (4 + 1) * 3));
-
-	menu[7].setFont(font);
-	menu[7].setFillColor(sf::Color::White);
-	menu[7].setString("Return to main menu");
-	menu[7].setPosition(sf::Vector2f((width / 2) - (menu[7].getGlobalBounds().width / 2), height / (4 + 1) * 4));
-
-	menu[8].setFont(font);
-	menu[8].setFillColor(sf::Color::White);
-	menu[8].setString("Number of Colors");
-	menu[8].setPosition(sf::Vector2f(((width / 2) - (menu[8].getGlobalBounds().width / 2)), (height / (4 + 1) * 1) - 30));
-
-	menu[9].setFont(font);
-	menu[9].setFillColor(sf::Color::White);
-	menu[9].setString("Difficulty Level");
-	menu[9].setPosition(sf::Vector2f((width / 2) - (menu[9].getGlobalBounds().width / 2), (height / (4 + 1) * 2) - 30));
-
-	menu[10].setFont(font);
-	menu[10].setFillColor(sf::Color::White);
-	menu[10].setString("Sound");
-	menu[10].setPosition(sf::Vector2f((width / 2) - (menu[10].getGlobalBounds().width / 2), (height / (4 + 1) * 3) - 30));
-
+	setMenu(font, sf::Color::Yellow, "Play", 1, 0, 0);
+	setMenu(font, sf::Color::White, "Options", 2, 0, 1);
+	setMenu(font, sf::Color::White, "Credit", 3, 0, 2);
+	setMenu(font, sf::Color::White, "Exit", 4, 0, 3);
+	setMenu(font, sf::Color::Yellow, "1", 1, 0, 4);
+	setMenu(font, sf::Color::White, "1", 2, 0, 5);
+	setMenu(font, sf::Color::White, "ON", 3, 0, 6);
+	setMenu(font, sf::Color::White, "Return to main menu", 4, 0, 7);
+	setMenu(font, sf::Color::White, "Number of Colors", 1, 30, 8);
+	setMenu(font, sf::Color::White, "Difficulty Level", 2, 30, 9);
+	setMenu(font, sf::Color::White, "Sound" , 3 , 30, 10);
 
 	selectedItemIndex = 0;
 }
 
+void Menu::setMenu(sf::Font& f, sf::Color c, std::string s,int h, int d, int i)
+{
+	menu[i].setFont(f);
+	menu[i].setFillColor(c);
+	menu[i].setString(s);
+	menu[i].setPosition(sf::Vector2f((width / 2) - (menu[i].getGlobalBounds().width / 2), (height / (4 + 1) * h) - d));
+}
 
 Menu::~Menu()
 {
@@ -163,6 +128,7 @@ void Menu::MoveLeft(int start, Game& g)
 			g.music.setVolume(30.0f);
 			k = "ON";
 		}
+		menu[selectedItemIndex + start].setString(k);
 	}
 }
 
@@ -220,21 +186,11 @@ void Menu::OptionUpdate(int& gm,Game& g)
 				{
 				case 0:
 				{
-					std::string k = menu[4].getString();
-					int now = std::stoi(k);
-					std::cout << now << std::endl;
-					g.ColorsNum = now;
-					g.GenerateColors(g.ColorSeed, now);
-					g.ResetLevel();
 					gm = 2;
 					break;
 				}
 				case 1:
-				{
-					std::string k = menu[5].getString();
-					int now = std::stoi(k);
-					g.diff = now;
-					g.ResetLevel();
+				{	
 					gm = 2;
 					break;
 				}
@@ -245,6 +201,16 @@ void Menu::OptionUpdate(int& gm,Game& g)
 				}
 				case 3:
 				{
+
+					g.ColorsNum = std::stoi(std::string(menu[4].getString()));
+					g.GenerateColors(g.ColorSeed, g.ColorsNum);
+					g.ResetLevel();
+
+					g.diff = std::stoi(std::string(menu[5].getString()));
+					g.playerMoveSpeed = 5.0f;
+					if (g.diff >= 2) g.playerMoveSpeed *= std::min(5, g.diff) / 2.0;
+					g.ResetLevel();
+
 					selectedItemIndex = 1;
 					gm = 1;
 					break;
@@ -284,21 +250,18 @@ void Menu::Update(int& gm)
 				{
 				case 0:
 				{
-					std::cout << "Play button has been pressed" << std::endl;
 					gm = 0;
 					break;
 				}
 				case 1:
 				{
-					std::cout << "Option button has been pressed" << std::endl;
 					selectedItemIndex = 0;
 					gm = 2;
 					break;
 				}
 				case 2:
 				{
-					std::cout << "Credit button has been pressed" << std::endl;
-					gm = 3;
+					gm = 1;
 					break;
 				}
 				case 3:
