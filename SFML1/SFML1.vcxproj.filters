@@ -61,16 +61,25 @@
     <Image Include="assets\Bak.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="assets\bak1.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
-    <Font Include="assets\font.ttf" />
     <Font Include="assets\arial.ttf" />
     <Font Include="assets\FredokaOne.ttf">
       <Filter>Resource Files</Filter>
     </Font>
+    <Font Include="assets\font.ttf" />
   </ItemGroup>
   <ItemGroup>
     <Media Include="assets\music.wav">
+      <Filter>Resource Files</Filter>
+    </Media>
+    <Media Include="assets\col.wav">
+      <Filter>Resource Files</Filter>
+    </Media>
+    <Media Include="assets\space.wav">
       <Filter>Resource Files</Filter>
     </Media>
   </ItemGroup>
