@@ -146,7 +146,7 @@ void Menu::MoveLeft(int start, Game& g)
 	{
 		std::string k = menu[selectedItemIndex + start].getString();
 		int now = std::stoi(k);
-		if (now > 2)
+		if (now > 1)
 			now--;
 		menu [selectedItemIndex + start].setString(std::to_string(now));
 	}
@@ -222,7 +222,10 @@ void Menu::OptionUpdate(int& gm,Game& g)
 				{
 					std::string k = menu[4].getString();
 					int now = std::stoi(k);
+					std::cout << now << std::endl;
 					g.ColorsNum = now;
+					g.GenerateColors(g.ColorSeed, now);
+					g.ResetLevel();
 					gm = 2;
 					break;
 				}
@@ -231,12 +234,12 @@ void Menu::OptionUpdate(int& gm,Game& g)
 					std::string k = menu[5].getString();
 					int now = std::stoi(k);
 					g.diff = now;
+					g.ResetLevel();
 					gm = 2;
 					break;
 				}
 				case 2:
 				{
-					std::cout << "Credit button has been pressed" << std::endl;
 					gm = 2;
 					break;
 				}

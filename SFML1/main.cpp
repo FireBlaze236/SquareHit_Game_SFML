@@ -14,7 +14,7 @@ int main()
 
 	ms = 71;
 	cs = 1 + (rand()%420);
-	cn = 6;
+	cn = 1;
 	d = 1;
 
 	/*std::cout << "Enter Map Seed : ";
