@@ -12,6 +12,7 @@ class Hud
 	sf::Text gameWinText;
 	sf::Text gameOverText;
 	int _gstate;
+	float w;
 public:
 	void Draw(sf::RenderWindow* render);
 	void Update(int score, int lives, int state);

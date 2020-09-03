@@ -21,7 +21,6 @@ Hud::Hud(sf::Font& f) : font(f)
 	pausedText.setPosition(140, 100);
 
 	// Game win
-
 	gameWinText.setFont(font);
 	gameWinText.setCharacterSize(48);
 	gameWinText.setString("Congratulations !");

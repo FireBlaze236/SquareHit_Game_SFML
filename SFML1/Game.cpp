@@ -11,8 +11,9 @@ Game::Game(int w, int h, const char* title, int ms, int cn, int cs, int d) :
 	GameRunning(true), 
 	gameWindow(new sf::RenderWindow(sf::VideoMode(w, h), title)), 
 	player(new Player()),
-	hud(Hud(font))
+	hud(font)
 {
+	 
 	//TODO: use better flags
 	GamePaused = false;
 	GameMainMenu = 1;
@@ -87,7 +88,7 @@ void Game::HandleEvents()
 		}
 		}
 
-		if ((GameWin || GameOver) && e.type == sf::Event::KeyReleased && e.key.code == sf::Keyboard::Escape)
+		if ((GameWin || GameOver) && e.type == sf::Event::KeyReleased && (e.key.code == sf::Keyboard::Escape || e.key.code == sf::Keyboard::Q))
 		{
 			//Close();
 			GotoMenu();
