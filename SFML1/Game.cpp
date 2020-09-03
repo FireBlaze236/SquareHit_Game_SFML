@@ -240,6 +240,7 @@ void Game::Update()
 
 void Game::GenerateColors(int seed, int n)
 {
+	colors.clear();
 	srand(seed);
 
 	for (int i = 0; i < n; i++)
