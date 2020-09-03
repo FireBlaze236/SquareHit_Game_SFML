@@ -7,13 +7,15 @@ Menu::Menu(sf::RenderWindow& wnd)
 	window = &wnd;
 	float width = (float)window->getSize().x;
 	float height = (float)window->getSize().y;
+
 	//Load Resources
 	//TODO: replace exit with throw
+
 	if (!texture.loadFromFile("assets/bak1.png"))
 	{
 		exit(2);
 	}
-	if (!font.loadFromFile("assets/font2.ttf"))
+	if (!font.loadFromFile("assets/font.ttf"))
 	{
 		exit(2);
 	}
@@ -234,6 +236,8 @@ void Menu::OptionUpdate(int& gm,Game& g)
 					std::string k = menu[5].getString();
 					int now = std::stoi(k);
 					g.diff = now;
+					g.playerMoveSpeed = 5.0f;
+					if (g.diff >= 2) g.playerMoveSpeed *= std::min(5, g.diff) / 2.0;
 					g.ResetLevel();
 					gm = 2;
 					break;

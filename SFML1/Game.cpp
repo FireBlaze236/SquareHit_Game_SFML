@@ -39,7 +39,7 @@ Game::Game(int w, int h, const char* title, int ms, int cn, int cs, int d) :
 	tileSprite.setTexture(tileTexture);
 	
 	//Init UI
-	font.loadFromFile("assets\\font2.ttf");
+	font.loadFromFile("assets\\font.ttf");
 
 	//Init Audio
 	musicBuff.loadFromFile("assets\\music.wav");

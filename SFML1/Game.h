@@ -15,6 +15,7 @@ public:
 	sf::RenderWindow* gameWindow;
 	bool GamePaused;
 	int GameMainMenu;
+	float playerMoveSpeed = 5.0f;
 private:
 	//main variables
 	bool GameRunning;
@@ -31,7 +32,6 @@ private:
 	sf::Clock gameTimer;
 	sf::Clock intervalTimer;
 	//player variables
-	float playerMoveSpeed = 5.0f;
 	float playerSmashSpeed = 10.0f;
 	sf::Vector2f lastPosition;
 	bool moving;
