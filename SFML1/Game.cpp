@@ -110,6 +110,13 @@ void Game::HandleEvents()
 
 void Game::Update()
 {
+	for (int i = 0; i < tileMapRows; i++)
+	{
+		for (int j = 0; j < tileMapColumns; j++)
+		{
+			tiles[i][j].Update();
+		}
+	}
 	//Change color at intervals
 	float t = intervalTimer.getElapsedTime().asSeconds();
 	if (moving && t > interval)
@@ -190,7 +197,6 @@ void Game::Update()
 		{
 			for (int j = 0; j < tileMapColumns && !collide; j++)
 			{
-				tiles[i][j].Update();
 				// NOTE: this section probably needs cleaning up
 				auto destroyTile = [&](int x, int y)
 				{
@@ -284,21 +290,22 @@ void Game::DrawTileMap()
 		for (int j = 0; j < tileMapColumns; j++)
 		{
 			int idx = tiles[i][j].color;
+			int opc = tiles[i][j].opacity;
 
 			//Draw single tile
 
 			sf::Color col = colors[idx];
 			sf::Vector2f pos = drawPos;
 
-			//if (tiles[i][j].isDestroyed) {
-			//	col.a = tiles[i][j].opacity;
-			//	pos.y += tiles[i][j].ascend;
-			//}
-
+			//if (!tiles[i][j].isDestroyed)
+			//	gameWindow->draw(tileSprite);
+			if (tiles[i][j].isDestroyed) {
+				col.a = opc >= 0 ? opc : 0;
+				pos.y -= tiles[i][j].ascend;
+			}
 			tileSprite.setPosition(pos);
 			tileSprite.setColor(col);
-			if (!tiles[i][j].isDestroyed)
-				gameWindow->draw(tileSprite);
+			gameWindow->draw(tileSprite);
 
 			//store rect + color for collision detect
 			if (idx >= 0)
