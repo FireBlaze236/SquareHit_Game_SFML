@@ -44,8 +44,8 @@ int main()
 		//Credit
 		else if (game.GameMainMenu == 3)
 		{
-			
-			break;
+			menu.CreditShow(game.GameMainMenu);
+			menu.draw(10, 14);
 		}
 		//Exit
 		else

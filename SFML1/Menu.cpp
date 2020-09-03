@@ -19,6 +19,10 @@ Menu::Menu(sf::RenderWindow& wnd)
 	{
 		exit(2);
 	}
+	if (!cfont.loadFromFile("assets/FredokaOne.ttf"))
+	{
+		exit(2);
+	}
 
 	//Set Sprites
 	size = texture.getSize();
@@ -44,6 +48,11 @@ Menu::Menu(sf::RenderWindow& wnd)
 	setMenu(font, sf::Color::White, "Sound" , 3 , 30, 10);
 
 	selectedItemIndex = 0;
+
+	//Set Credit Window
+	std::string now = "Contributor:\n\n\t\tFireBlaze236\n\t\tspiritinchains\n\t\tiambashar\n\nMentor:\n\n\t\tfaisalhussain-CSE12\n\nSpecial Thanks to IUT CSE";
+	setMenu(cfont, sf::Color::White, now, 1, 60, 11);
+	setMenu(cfont, sf::Color::Yellow, "Return to main menu", 4, -35, 12);
 }
 
 void Menu::setMenu(sf::Font& f, sf::Color c, std::string s,int h, int d, int i)
@@ -79,6 +88,13 @@ void Menu::draw(int start, int end)
 		}
 	}
 
+	//Draw Credit Window
+	if (end == 14)
+	{
+		window->draw(menu[11]);
+		window->draw(menu[12]);
+	}
+	else
 	//Draw Main Menu
 	for (int i = 0; i < 4; i++)
 	{
@@ -271,7 +287,8 @@ void Menu::Update(int& gm)
 				case 2:
 				{
 					//Go to Credit
-					gm = 1;
+					selectedItemIndex = 12;
+					gm = 3;
 					break;
 				}
 				case 3:
@@ -288,6 +305,20 @@ void Menu::Update(int& gm)
 		case sf::Event::Closed:
 			window->close();
 			break;
+		}
+	}
+}
+
+//check whether to back to Mainmenu, or show Credit
+void Menu::CreditShow(int&  gm)
+{
+	sf::Event event;
+	if (window->pollEvent(event))
+	{
+		if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::Return)
+		{
+			selectedItemIndex = 2;
+			gm = 1;
 		}
 	}
 }
