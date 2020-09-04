@@ -1,8 +1,9 @@
 #include "Hud.h"
 #include <sstream>
 
-Hud::Hud(sf::Font& f) : font(f)
-{
+Hud::Hud(sf::Font& f) : font(f), _gstate(-1) { }
+
+void Hud::Init(double x, double y) {
 	scoreText.setFont(font);
 	livesText.setFont(font);
 	timerText.setFont(font);
@@ -18,22 +19,32 @@ Hud::Hud(sf::Font& f) : font(f)
 	pausedText.setFont(font);
 	pausedText.setCharacterSize(48);
 	pausedText.setString("Paused");
-	pausedText.setPosition(140, 100);
+	pausedText.setPosition((x / 2) - (pausedText.getGlobalBounds().width / 2), y / 4);
 
 	// Game win
 	gameWinText.setFont(font);
 	gameWinText.setCharacterSize(48);
 	gameWinText.setString("Congratulations !");
-	gameWinText.setPosition(20, 100);
+	gameWinText.setPosition((x / 2) - (gameWinText.getGlobalBounds().width / 2), y / 4);
 
 	// Game over
 	gameOverText.setFont(font);
 	gameOverText.setFillColor(sf::Color::Red);
 	gameOverText.setCharacterSize(48);
 	gameOverText.setString("Game Over!");
-	gameOverText.setPosition(140, 100);
+	gameOverText.setPosition((x / 2) - (gameOverText.getGlobalBounds().width / 2), y / 4);
 
-	_gstate = -1;
+	/*
+	// Transparent Pause Background
+	_pauseBkg.loadFromFile("assets/clr.png");
+	pauseBkg.setTexture(_pauseBkg);
+	auto txc = pauseBkg.getColor();
+	txc.a = 128;
+	pauseBkg.setColor(txc);
+	pauseBkg.setOrigin(0, 0);
+	// draw across entire screen
+	pauseBkg.setScale(x / pauseBkg.getLocalBounds().width, y / pauseBkg.getLocalBounds().height);
+	*/
 }
 
 void Hud::Update(int score, int lives, int state)
@@ -60,6 +71,7 @@ void Hud::Draw(sf::RenderWindow* render)
 	render->draw(livesText);
 	switch (_gstate){
 	case 0:
+		//render->draw(pauseBkg);
 		render->draw(pausedText);
 		break;
 	case 1:

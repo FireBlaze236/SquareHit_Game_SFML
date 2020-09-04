@@ -13,8 +13,6 @@ Game::Game(int w, int h, const char* title, int ms, int cn, int cs, int d) :
 	player(new Player()),
 	hud(font)
 {
-	 
-	//TODO: use better flags
 	GamePaused = false;
 	GameMainMenu = 1;
 
@@ -51,6 +49,9 @@ Game::Game(int w, int h, const char* title, int ms, int cn, int cs, int d) :
 	colSound.setBuffer(colSoundBuf);
 	spaceSoundBuf.loadFromFile("assets/space.wav");
 	spaceSound.setBuffer(spaceSoundBuf);
+
+	//Init Hud
+	hud.Init(gameWindow->getSize().x, gameWindow->getSize().y);
 }
 
 
@@ -331,9 +332,9 @@ void Game::Render()
 	gameWindow->clear();
 	//Area for rendering everything
 	//UI
-	hud.Draw(gameWindow);
 	gameWindow->draw(player->GetSprite());
 	DrawTileMap();
+	hud.Draw(gameWindow);
 	//Display rendered output
 	gameWindow->display();
 
