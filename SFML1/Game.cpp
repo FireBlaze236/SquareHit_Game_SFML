@@ -146,16 +146,16 @@ void Game::Update()
 
 	if (lives == 0)
 	{
-		PauseGame();
+		//PauseGame();
 		GameOver = true;
 	}
 	else if (tileCount == 0)
 	{
-		PauseGame();
+		//PauseGame();
 		GameWin = true;
 	}
 	// Player smashes the tiles when Space is pressed
-	if (!smash && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space))
+	if (!smash && sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space) && !GameOver && !GameWin)
 	{
 		moving = false;
 		smash = true;
@@ -332,7 +332,8 @@ void Game::Render()
 	gameWindow->clear();
 	//Area for rendering everything
 	//UI
-	gameWindow->draw(player->GetSprite());
+	if (!GameWin && !GameOver)
+		gameWindow->draw(player->GetSprite());
 	DrawTileMap();
 	hud.Draw(gameWindow);
 	//Display rendered output
