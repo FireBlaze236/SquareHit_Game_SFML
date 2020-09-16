@@ -10,7 +10,7 @@ A Simple game built with SFML in C++.
 2. Download the source code
 3. Open `SFML1.sln` in Visual Studio
 4. Build the project in Visual Studio. Make sure x86 is selected in Configuration options.
-5. Copy over the dll files from `SFML1/` to the folder the exe was built. The game requires the exe files
+5. Copy over the dll files and `assets` folder from `SFML1/` to the folder the exe was built. The game requires the exe files
 to be in the same folder as the dlls.
 
 ### Other Platforms
